@@ -7,7 +7,6 @@ datasource db {
   provider = "postgresql"
 }
 
-
 model User {
   id                         Int                         @id @default(autoincrement())
   name                       String
@@ -17,11 +16,13 @@ model User {
   role                       UserRole                    @default(USER)
   address                    UserAddress?
   restaurants                Restaurant[]
-  orders                     Order[] 
+  orders                     Order[]
+  payments                   Payment[]
   createdAt                  DateTime                    @default(now())
   updatedAt                  DateTime                    @updatedAt
   foodRatingAndReviews       FoodRatingAndReview[]
   restaurantRatingAndReviews RestaurantRatingAndReview[]
+  cart                       Cart?
 }
 
 model UserAddress {
@@ -43,7 +44,7 @@ model Restaurant {
   address                   RestaurantAddress?
   phoneNo                   String
   imageUrl                  String?
-  food                      Food[] 
+  food                      Food[]
   userId                    Int
   user                      User                        @relation(fields: [userId], references: [id])
   createdAt                 DateTime                    @default(now())
@@ -68,15 +69,16 @@ model Food {
   id            Int                   @id @default(autoincrement())
   foodName      String
   description   String?
-  price         Decimal 
+  price         Decimal
   discountPrice Decimal?
   imageUrl      String?
-  foodRating    FoodRatingAndReview[] 
+  foodRating    FoodRatingAndReview[]
   restaurantId  Int
   restaurant    Restaurant            @relation(fields: [restaurantId], references: [id])
   createdAt     DateTime              @default(now())
   updatedAt     DateTime              @updatedAt
   orderItems    OrderItem[]
+  cartItems     CartItem[]
 
   @@index([restaurantId])
 }
@@ -94,6 +96,7 @@ model FoodRatingAndReview {
   @@index([foodId])
 }
 
+
 model RestaurantRatingAndReview {
   id           Int        @id @default(autoincrement())
   rating       Int
@@ -110,19 +113,72 @@ model RestaurantRatingAndReview {
 /**
  * Orders: using Order + OrderItem for N-to-N between Order and Food
  */
+
+model Cart {
+  id        Int        @id @default(autoincrement())
+  userId    Int        @unique
+  user      User       @relation(fields: [userId], references: [id])
+  items     CartItem[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model CartItem {
+  id        Int @id @default(autoincrement())
+  cartId    Int
+  foodId    Int
+  quantity Int @default(1)
+  price    Decimal
+
+  cart      Cart @relation(fields: [cartId], references: [id])
+  food      Food @relation(fields: [foodId], references: [id])
+}
+
+model Payment {
+  id Int @id @default(autoincrement())
+
+  userId  Int
+  orderId Int @unique
+
+  paymentMethod  PaymentMethod
+  paymentGateway PaymentGateway?
+
+  gatewayOrderId   String?
+  gatewayPaymentId String?
+  gatewaySignature String?
+
+  amount   Decimal
+  currency String        @default("INR")
+  status   PaymentStatus @default(PENDING)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user  User  @relation(fields: [userId], references: [id])
+  order Order @relation(fields: [orderId], references: [id])
+
+  @@index([orderId])
+}
+
 model Order {
-  id            Int      @id @default(autoincrement())
-  userId        Int
-  restaurantId  Int
-  status        String   @default("PENDING") 
+  id           Int @id @default(autoincrement())
+  userId       Int
+  restaurantId Int
+
+  status        OrderStatus   @default(PENDING)
   totalAmount   Decimal
-  paymentMethod String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  paymentStatus PaymentStatus @default(PENDING)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   user       User        @relation(fields: [userId], references: [id])
   restaurant Restaurant  @relation(fields: [restaurantId], references: [id])
   items      OrderItem[]
+  payment    Payment?
+
+  @@index([userId])
+  @@index([restaurantId])
 }
 
 model OrderItem {
@@ -130,7 +186,7 @@ model OrderItem {
   orderId  Int
   foodId   Int
   quantity Int     @default(1)
-  price    Decimal 
+  price    Decimal
   order    Order   @relation(fields: [orderId], references: [id])
   food     Food    @relation(fields: [foodId], references: [id])
 }
@@ -139,6 +195,24 @@ enum UserRole {
   USER
   RESTAURANT
   ADMIN
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  ONLINE
+  COD
+}
+
+enum PaymentGateway {
+  RAZORPAY
+  STRIPE
+  PAYPAL
 }
 
 enum OrderStatus {
