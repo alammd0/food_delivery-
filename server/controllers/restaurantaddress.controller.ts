@@ -1,7 +1,7 @@
 import type { Request, Response } from 'express';
 import { prisma } from '../lib/prisma';
 
-// 1. Create a new user address 
+// 1. Create address 
 export const createRestaurantAddress = async ( req: Request, res : Response) => {
     try {
         const { street, city, state, country, zipcode } = req.body;
@@ -61,8 +61,7 @@ export const createRestaurantAddress = async ( req: Request, res : Response) => 
     }
 }
 
-
-// 2. update user address 
+// 2. update address 
 export const updateRestaurantAddress = async ( req: Request, res : Response) => {
     try{
         const { id } = req.params;
@@ -129,8 +128,7 @@ export const updateRestaurantAddress = async ( req: Request, res : Response) => 
     }
 }
 
-
-// 3. Delete user address 
+// 3. Delete address 
 export const deleteRestaurantAddress = async ( req: Request, res : Response) => {
     try{
         const { id } = req.params;
@@ -179,8 +177,7 @@ export const deleteRestaurantAddress = async ( req: Request, res : Response) => 
     }
 }
 
-
-// 4. Get all user address 
+// 4. Get all address 
 export const getAllRestaurantAddress = async ( req: Request, res : Response) => {
     try {
         const restaurant = await prisma.restaurant.findFirst({

@@ -169,7 +169,7 @@ export const createOrder = async (req: Request, res : Response) => {
 }
 
 // 3. Verify the payment
-export const VerifyPayment = async (req : Request, res : Response) => {
+export const verifyPayment = async (req : Request, res : Response) => {
     try {
         const { paymentId, rz_order_id, rz_signature } = req.body;
 

@@ -285,7 +285,7 @@ export const getAllFoods = async (req : Request, res : Response) => {
     }
 }
 
-// 5. Get a food by id // TODO 
+// 5. Get a food by id
 export const getFoodById = async (req : Request, res : Response) => {
     try {
         const { id } = req.params;
@@ -320,7 +320,7 @@ export const getFoodById = async (req : Request, res : Response) => {
     }
 }
 
-// 6. Get a food by keyword // TODO
+// 6. Get a food by keyword 
 export const getFoodByKeyword = async (req : Request, res : Response) => {
     try {
         const {

@@ -129,7 +129,7 @@ export const addItemInCart = async (req: Request, res: Response) => {
                     price : price
                 }
             });
-            
+
             return res.status(200).json({
                 message : "Item added to cart successfully",
                 cart : newCart,
@@ -188,8 +188,7 @@ export const updateQuantity = async (req: Request, res: Response) => {
 export const removeItemFromCart = async (req: Request, res: Response) => {
     try{
         const { id } = req.body;
-        
-        // @ts-ignore
+    
         const userId = req.user.id;
 
         const cartItem = await prisma.cartItem.findFirst({

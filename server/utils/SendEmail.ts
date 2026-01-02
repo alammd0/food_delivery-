@@ -9,8 +9,6 @@ const sendEmail = async (to : string, subject : string, html : string, text : st
             html,
             text
         })
-
-        // console.log(info);
     }
     catch (error) {
         console.log(error);

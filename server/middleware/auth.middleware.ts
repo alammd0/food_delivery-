@@ -19,7 +19,6 @@ export const authMiddleware = async ( req : Request, res : Response, next : Next
             })
         }
 
-        // @ts-ignore
         req.user = decoded;
 
         next();
@@ -31,10 +30,38 @@ export const authMiddleware = async ( req : Request, res : Response, next : Next
     }
 }
 
-
 export const isOwner = async (req : Request, res : Response, next : NextFunction) => {
     try{
+        const { role } = req.user;
 
+        if(role === "ADMIN"){
+            next();
+        }
+        else{
+            return res.status(403).json({
+                message : "You are not authorized to access this route",
+            })
+        }
+    }
+    catch (error) {
+        return res.status(401).json({
+            message : "Token is invalid",
+        })
+    }
+}
+
+export const isUser = async (req : Request, res : Response, next : NextFunction) => {
+    try{
+        const { role } = req.user;
+
+        if(role === "USER"){
+            next();
+        }
+        else{
+            return res.status(403).json({
+                message : "You are not authorized to access this route",
+            })
+        }
     }
     catch (error) {
         return res.status(401).json({

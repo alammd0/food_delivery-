@@ -2,7 +2,7 @@ import type { Request, Response } from "express";
 import { prisma } from "../lib/prisma";
 import { uploadImage } from "../utils/fileUpload";
 
-// 1. Create a new restaurant
+// 1. Create a new restaurant -> Only For Is Owner Account 
 export const createRestaurant = async (req : Request, res : Response) => {
     try {
 
@@ -84,7 +84,7 @@ export const createRestaurant = async (req : Request, res : Response) => {
     }
 }
 
-// 2. Update a restaurant
+// 2. Update a restaurant -> Only For Is Owner Account
 export const updateRestaurant = async (req : Request, res : Response) => {
     try {
         const { id } = req.params;
@@ -154,7 +154,7 @@ export const updateRestaurant = async (req : Request, res : Response) => {
     }
 }
 
-// 3. Delete a restaurant
+// 3. Delete a restaurant -> Only For Is Owner Account
 export const deleteRestaurant = async (req : Request, res : Response) => {
     try {
         const { id } = req.params;
@@ -208,7 +208,7 @@ export const deleteRestaurant = async (req : Request, res : Response) => {
     }
 }
 
-// 4. Get all restaurants
+// 4. Get all restaurants -> Authenticated User and Restaurant Owner
 export const getAllRestaurants = async (req : Request, res : Response) => {
     try {
         const allRestaurants = await prisma.restaurant.findMany({
@@ -257,7 +257,7 @@ export const getAllRestaurants = async (req : Request, res : Response) => {
     }
 }
 
-// 5. Get a restaurant by id
+// 5. Get a restaurant by id -> Authenticated User and Restaurant Owner
 export const getRestaurantById = async (req : Request, res : Response) => {
     try {
         const { id } = req.params;
@@ -310,7 +310,7 @@ export const getRestaurantById = async (req : Request, res : Response) => {
     }
 }
 
-// 6. Get a restaurant by keyword
+// 6. Get a restaurant by keyword -> Authenticated User and Restaurant Owner
 export const getRestaurantByKeyword = async (req : Request, res : Response) => {
     try {
         

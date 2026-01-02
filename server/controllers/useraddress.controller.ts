@@ -6,7 +6,7 @@ import { prisma } from '../lib/prisma';
 export const createUserAddress = async ( req: Request, res : Response) => {
     try {
 
-        const userId = req.user.id
+        const userId = req.params;
 
         const { street, city, state, country, zipcode } = req.body
 
@@ -191,9 +191,8 @@ export const deleteUserAddress = async ( req: Request, res : Response) => {
 // 4. Get all user address 
 export const getAllUserAddress = async ( req: Request, res : Response) => {
     try {
-        // @ts-ignore
-        const userid = req.user.id ;
-
+        const userid = req.params;
+        
         const user = await prisma.user.findFirst({
             where : {
                 id : userid
