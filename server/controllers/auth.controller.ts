@@ -6,6 +6,7 @@ import sendEmail from "../utils/SendEmail";
 
 export const signup = async (req : Request, res : Response) => {
     try {
+
         const { name, email, phoneNo, password } = req.body;
 
         if (!name || !email || !phoneNo || !password) {
@@ -84,7 +85,7 @@ export const login = async (req : Request, res : Response) => {
         const payload = {
             id : user.id,
             email : user.email,
-            // role : user.role
+            role : user.role
         }
 
         const token = jwt.sign(payload, process.env.JWT_SECRET as string, {
@@ -98,7 +99,7 @@ export const login = async (req : Request, res : Response) => {
                 name : user.name,
                 email : user.email,
                 phoneNo : user.phoneNo,
-                // role : user.role
+                role : user.role
             }
         })
     }
@@ -215,5 +216,4 @@ export const updatePassword = async (req : Request, res : Response) => {
        });
        console.log(error);
    }
-   return;
 }

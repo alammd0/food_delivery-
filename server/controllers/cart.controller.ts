@@ -128,9 +128,8 @@ export const addItemInCart = async (req: Request, res: Response) => {
                     quantity : Quantity,
                     price : price
                 }
-            })
-
-
+            });
+            
             return res.status(200).json({
                 message : "Item added to cart successfully",
                 cart : newCart,

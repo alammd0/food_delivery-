@@ -5,9 +5,9 @@ import { prisma } from '../lib/prisma';
 export const createFoodRatingAndReview = async (req : Request, res : Response) => {
     try {
 
-        // @ts-ignore
         const userId = req.user.id
-        const { rating, review, foodId } = req.body;
+        const foodId = req.params;
+        const { rating, review } = req.body;
 
         if(!rating || !review || !userId || !foodId){
             return res.status(400).json({
@@ -44,13 +44,13 @@ export const createFoodRatingAndReview = async (req : Request, res : Response) =
                 rating : Number(rating),
                 review : review,
                 userId : userId,
-                foodId : foodId
+                foodId : Number(foodId)
             }
         })
 
         await prisma.food.update({
             where : {
-                id : foodId
+                id : Number(foodId)
             },
 
             data : {
@@ -74,11 +74,50 @@ export const createFoodRatingAndReview = async (req : Request, res : Response) =
     }
 }
 
-
 // 2. Update a food rating and review : H/w 
 export const updateFoodRatingAndReview = async (req : Request, res : Response) => {
     try {
+        const { id } = req.params;
 
+        const { rating, review } = req.body;
+
+
+        const foodRatingAndReview = await prisma.foodRatingAndReview.findFirst({
+            where : {
+                id : Number(id)
+            }
+        })
+
+        if(!foodRatingAndReview){
+            return res.status(404).json({
+                message : "Food rating and review does not exist",
+            })
+        }
+
+        const newFoodRatingAndReviewData = {
+            rating : foodRatingAndReview.rating,
+            review : foodRatingAndReview.review
+        }
+
+        if(rating){
+            newFoodRatingAndReviewData.rating = rating
+        }
+
+        if(review){
+            newFoodRatingAndReviewData.review = review
+        }
+
+        const updatedFoodRatingAndReview = await prisma.foodRatingAndReview.update({
+            where : {
+                id : Number(id)
+            },
+            data : newFoodRatingAndReviewData
+        })
+
+        return res.status(200).json({
+            message : "Food rating and review updated successfully",
+            foodRatingAndReview : updatedFoodRatingAndReview
+        });
     }
     catch (error) {
         return res.status(500).json({
@@ -86,7 +125,6 @@ export const updateFoodRatingAndReview = async (req : Request, res : Response) =
         });
     }
 }
-
 
 // 3. Delete a food rating and review
 export const deleteFoodRatingAndReview = async (req : Request, res : Response) => {
@@ -142,7 +180,6 @@ export const deleteFoodRatingAndReview = async (req : Request, res : Response) =
     }
 }
 
-
 // 4. Get all food rating and review
 export const getAllFoodRatingAndReview = async (req : Request, res : Response) => {
     try {
@@ -165,7 +202,6 @@ export const getAllFoodRatingAndReview = async (req : Request, res : Response) =
         });
     }
 }
-
 
 // 5. get a food rating and review by id
 export const getFoodRatingAndReviewById = async (req : Request, res : Response) => {

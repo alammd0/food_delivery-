@@ -5,6 +5,7 @@ import { uploadImage } from "../utils/fileUpload";
 // 1. Create a new restaurant
 export const createRestaurant = async (req : Request, res : Response) => {
     try {
+
         const { restaurantName, about, phoneNo } = req.body;
 
         if(!restaurantName || !about || !phoneNo){
@@ -13,7 +14,6 @@ export const createRestaurant = async (req : Request, res : Response) => {
             })
         }
 
-        // @ts-ignore
         const userId = req.user.id
 
         // check if User exits in the database
@@ -28,7 +28,6 @@ export const createRestaurant = async (req : Request, res : Response) => {
                 message : "User does not exist",
             })
         }
-
 
         const image = req.file;
 
@@ -147,7 +146,6 @@ export const updateRestaurant = async (req : Request, res : Response) => {
             restaurant : updatedRestaurant
         });
 
-
     }
     catch (error) {
         return res.status(500).json({
@@ -160,9 +158,7 @@ export const updateRestaurant = async (req : Request, res : Response) => {
 export const deleteRestaurant = async (req : Request, res : Response) => {
     try {
         const { id } = req.params;
-
-
-
+        
         if(!id){
             return res.status(400).json({
                 message : "Please provide restaurant id",

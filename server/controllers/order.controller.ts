@@ -1,7 +1,6 @@
 import type { Request, Response } from "express";
 import { prisma } from "../lib/prisma";
-import { razorpay } from "../config/razorpay";
-import items from "razorpay/dist/types/items";
+import { razorpay } from "../config/razorpay";;
 import crypto from "crypto";
 
 // 1. Create a checkout : TODO

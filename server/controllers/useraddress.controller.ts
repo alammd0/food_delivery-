@@ -5,8 +5,7 @@ import { prisma } from '../lib/prisma';
 // 1. Create a new user address 
 export const createUserAddress = async ( req: Request, res : Response) => {
     try {
-        // find the user Id 
-        // @ts-ignore
+
         const userId = req.user.id
 
         const { street, city, state, country, zipcode } = req.body
@@ -41,7 +40,6 @@ export const createUserAddress = async ( req: Request, res : Response) => {
         });
 
 
-        // update the user address
         await prisma.user.update({
             where : {
                 id : user.id
@@ -69,7 +67,6 @@ export const createUserAddress = async ( req: Request, res : Response) => {
         })
     }
 }
-
 
 // 2. update user address 
 export const updateUserAddress = async ( req: Request, res : Response) => {
@@ -139,7 +136,6 @@ export const updateUserAddress = async ( req: Request, res : Response) => {
     }
 }
 
-
 // 3. Delete user address 
 export const deleteUserAddress = async ( req: Request, res : Response) => {
     try {
@@ -191,7 +187,6 @@ export const deleteUserAddress = async ( req: Request, res : Response) => {
         })
     }
 }
-
 
 // 4. Get all user address 
 export const getAllUserAddress = async ( req: Request, res : Response) => {

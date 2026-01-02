@@ -162,6 +162,7 @@ export const updateFood = async (req : Request, res : Response) => {
             where : {
                 id : Number(id)
             },
+
             data : newFoodData
         })
 
@@ -181,6 +182,7 @@ export const updateFood = async (req : Request, res : Response) => {
 // 3. Delete a food
 export const deleteFood = async (req : Request, res : Response) => {
     try {
+
         const { id } = req.params ;
 
         if(!id){
@@ -286,7 +288,30 @@ export const getAllFoods = async (req : Request, res : Response) => {
 // 5. Get a food by id // TODO 
 export const getFoodById = async (req : Request, res : Response) => {
     try {
+        const { id } = req.params;
 
+        if(!id) {
+            return res.status(400).json({
+                message : "Please provide food id",
+            })
+        }
+
+        const food = await prisma.food.findFirst({
+            where:{
+                id : Number(id)
+            }
+        })
+
+        if(!food){
+            return res.status(404).json({
+                message : "Food does not exist",
+            })
+        }
+
+        return res.status(200).json({
+            message : "Food retrieved successfully",
+            food
+        });
     }
     catch (error) {
         return res.status(500).json({
@@ -298,7 +323,42 @@ export const getFoodById = async (req : Request, res : Response) => {
 // 6. Get a food by keyword // TODO
 export const getFoodByKeyword = async (req : Request, res : Response) => {
     try {
+        const {
+            keyword = "",
+            sort = "createdAt",
+            order = "desc"
+        } = req.query;
 
+        const or = [];
+        const q = String(keyword).trim();
+
+        if(q){
+            or.push({
+                foodName : {
+                    contains : q
+                }
+            })
+        }
+
+        const foods = await prisma.food.findMany({
+            where : {
+                OR : or
+            },
+            orderBy : {
+                [Number(sort)] : order
+            }
+        })
+        
+        if(!foods){
+            return res.status(400).json({
+                message : "No foods found",
+            })
+        }
+
+        return res.status(200).json({
+            message : "Foods retrieved successfully",
+            foods
+        });
     }
     catch (error) {
         return res.status(500).json({
