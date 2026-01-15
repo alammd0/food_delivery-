@@ -1,12 +1,15 @@
 import type { Request, Response } from "express";
 import { prisma } from "../lib/prisma";
 import { uploadImage } from "../utils/fileUpload";
+import type { UploadedFile } from "express-fileupload";
 
 // 1. Create a new restaurant -> Only For Is Owner Account 
 export const createRestaurant = async (req : Request, res : Response) => {
     try {
 
         const { restaurantName, about, phoneNo } = req.body;
+
+        // console.log("Here Hit - 01")
 
         if(!restaurantName || !about || !phoneNo){
             return res.status(400).json({
@@ -23,13 +26,20 @@ export const createRestaurant = async (req : Request, res : Response) => {
             }
         })
 
+
         if(!user){
             return res.status(400).json({
                 message : "User does not exist",
             })
         }
 
-        const image = req.file;
+        if(!req.files || !req.files.image){
+            return res.status(400).json({
+                message : "Please provide image",
+            })
+        }
+
+        const image = req.files.image as UploadedFile;
 
         if(!image){
             return res.status(400).json({
@@ -37,7 +47,9 @@ export const createRestaurant = async (req : Request, res : Response) => {
             })
         }
 
-        const uploadResponse = await uploadImage("restaurants", image.path);
+        const uploadResponse = await uploadImage("restaurants", image.tempFilePath);
+
+        // console.log(uploadResponse)
 
         if("error" in uploadResponse){
             return res.status(400).json({
@@ -47,7 +59,6 @@ export const createRestaurant = async (req : Request, res : Response) => {
 
         const imageUrl = uploadResponse.secure_url as string;
 
-
         const restaurant = await prisma.restaurant.create({
             data : {
                 restaurantName,
@@ -55,20 +66,6 @@ export const createRestaurant = async (req : Request, res : Response) => {
                 phoneNo,
                 imageUrl : imageUrl,
                 userId : userId
-            }
-        })
-
-        // update user's restaurant
-        await prisma.user.update({
-            where : {
-                id : userId
-            },
-            data : {
-                restaurants : {
-                    connect : {
-                        id : restaurant.id
-                    }
-                }
             }
         })
 
@@ -87,58 +84,71 @@ export const createRestaurant = async (req : Request, res : Response) => {
 // 2. Update a restaurant -> Only For Is Owner Account
 export const updateRestaurant = async (req : Request, res : Response) => {
     try {
+
         const { id } = req.params;
-        const { restaurantName, about, phoneNo } = req.body;
 
-        const image = req.file;
-
-        const restaurant = await prisma.restaurant.findFirst({
+        const restaurant = await prisma.restaurant.findUnique({
             where : {
                 id : Number(id)
             }
         })
 
-        if(!restaurant) {
-            return res.status(400).json({
+        if(!restaurant){
+            return res.status(404).json({
                 message : "Restaurant does not exist",
             })
         }
 
-        const newRestaurantData = {
-            restaurantName : restaurant.restaurantName,
-            about : restaurant.about,
-            phoneNo : restaurant.phoneNo,
-            imageUrl : restaurant.imageUrl
-        }
+        // console.log(req.body);
+
+        const { restaurantName, about, phoneNo } = req.body || {};
+
+        const updateData: any = {}; 
 
         if(restaurantName){
-            newRestaurantData.restaurantName = restaurantName
+            updateData.restaurantName = restaurantName
         }
 
         if(about){
-            newRestaurantData.about = about
+            updateData.about = about
         }
 
         if(phoneNo){
-            newRestaurantData.phoneNo = phoneNo
+            updateData.phoneNo = phoneNo
         }
 
-        if(image){
-            const imageUrl = await uploadImage("restaurants", image.path);
+        if (req.files?.image) {
+            const image = req.files.image as UploadedFile;
 
-            if("error" in imageUrl){
-                return res.status(400).json({
-                    message : "Error uploading image",
-                })
+            if (Array.isArray(image)) {
+                return res.status(400).json({ 
+                    message: "Only one image allowed" 
+                });
             }
-            newRestaurantData.imageUrl = imageUrl.secure_url as string
+
+            if (!image.tempFilePath) {
+                return res.status(400).json({
+                    message: "File upload config error (tempFilePath missing)",
+                });
+            }
+
+            const uploadResponse = await uploadImage("restaurants", image.tempFilePath);
+
+            if ("error" in uploadResponse) {
+                return res.status(400).json({
+                    message: "Image upload failed",
+                });
+            }
+
+            updateData.imageUrl = uploadResponse.secure_url;
         }
+
 
         const updatedRestaurant = await prisma.restaurant.update({
             where : {
                 id : Number(id)
-            }, 
-            data : newRestaurantData
+            },
+            data : updateData
         })
 
         return res.status(200).json({
@@ -183,20 +193,6 @@ export const deleteRestaurant = async (req : Request, res : Response) => {
             }
         })
 
-        // update user's restaurant
-        await prisma.user.update({
-            where : {
-                id : restaurant.userId
-            },
-            data : {
-                restaurants : {
-                    disconnect : {
-                        id : restaurant.id
-                    }
-                }
-            }
-        })
-
         return res.status(200).json({
             message : "Restaurant deleted successfully",
         });
@@ -207,6 +203,8 @@ export const deleteRestaurant = async (req : Request, res : Response) => {
         });
     }
 }
+
+// Remaining Part
 
 // 4. Get all restaurants -> Authenticated User and Restaurant Owner
 export const getAllRestaurants = async (req : Request, res : Response) => {

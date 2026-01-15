@@ -7,9 +7,9 @@ import sendEmail from "../utils/SendEmail";
 export const signup = async (req : Request, res : Response) => {
     try {
 
-        const { name, email, phoneNo, password } = req.body;
+        const { name, email, phoneNo, password, role} = req.body;
 
-        if (!name || !email || !phoneNo || !password) {
+        if (!name || !email || !phoneNo || !password || !role) {
             return res.status(400).json({
                 message  : "Please provide all the required fields",
             });
@@ -35,13 +35,19 @@ export const signup = async (req : Request, res : Response) => {
                 name,
                 email, 
                 phoneNo,
+                role : role,
                 password : hashedPassword
             }
         });
 
         return res.status(201).json({
             message  : "User created successfully",
-            user
+            user : {
+                name : user.name,
+                email : user.email,
+                phoneNo : user.phoneNo,
+                role : user.role
+            }
         });
     }
     catch (error) {
@@ -136,7 +142,7 @@ export const sendLinkByEmail = async (req :Request, res : Response) => {
         const payload = {
             id : user.id,
             email : user.email,
-            // role : user.role
+            role : user.role
         }
 
         const token = jwt.sign(payload, process.env.JWT_SECRET as string, {

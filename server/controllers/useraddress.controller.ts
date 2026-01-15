@@ -6,7 +6,7 @@ import { prisma } from '../lib/prisma';
 export const createUserAddress = async ( req: Request, res : Response) => {
     try {
 
-        const userId = req.params;
+        const { id } = req.params;
 
         const { street, city, state, country, zipcode } = req.body
 
@@ -16,9 +16,9 @@ export const createUserAddress = async ( req: Request, res : Response) => {
             })
         }
 
-        const user = await prisma.user.findFirst({
+        const user =  await prisma.user.findUnique({
             where : {
-                id  :  userId
+                id : Number(id)
             }
         })
 
@@ -38,7 +38,6 @@ export const createUserAddress = async ( req: Request, res : Response) => {
                 userId : user.id
             }
         });
-
 
         await prisma.user.update({
             where : {
@@ -140,13 +139,12 @@ export const updateUserAddress = async ( req: Request, res : Response) => {
 export const deleteUserAddress = async ( req: Request, res : Response) => {
     try {
         const { id } = req.params;
-
-        // @ts-ignore
         const userId = req.user.id
 
         const userAddress = await prisma.userAddress.findFirst({
             where : {
-                id : Number(id)
+                id : Number(id),
+                userId : userId
             }
         })
 
@@ -159,21 +157,6 @@ export const deleteUserAddress = async ( req: Request, res : Response) => {
         await prisma.userAddress.delete({
             where : {
                 id : Number(id)
-            }
-        });
-
-        // update the user address
-        await prisma.user.update({
-            where : {
-                id : userId
-            },
-
-            data :{
-                address : {
-                    disconnect : {
-                        id : userAddress.id
-                    }
-                }
             }
         })
 
@@ -191,35 +174,26 @@ export const deleteUserAddress = async ( req: Request, res : Response) => {
 // 4. Get all user address 
 export const getAllUserAddress = async ( req: Request, res : Response) => {
     try {
-        const userid = req.params;
+        const { id } = req.params;
         
         const user = await prisma.user.findFirst({
             where : {
-                id : userid
+                id : Number(id)
+            },
+            include : {
+                address : true
             }
         })
 
-        if(!user) {
+        if(!user){
             return res.status(404).json({
-                message : "user not found"
-            })
-        }
-
-        const userAddress = await prisma.userAddress.findMany({
-            where : {
-                id : user.id
-            }
-        })
-
-        if(!userAddress){
-            return res.status(404).json({
-                message : "User Address Not Found"
+                message : "User Not Found"
             })
         }
 
         return res.status(200).json({
             message  : "User Address Retrieved",
-            userAddress
+            address : user.address
         })
     }
     catch (error) {

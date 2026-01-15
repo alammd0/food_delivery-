@@ -40,9 +40,9 @@ restaurantRouter.get("/address/:id", authMiddleware, getAllRestaurantAddress);
 
 
 // Only for Is User 
-restaurantRouter.get("/", authMiddleware, getAllRestaurants);
+restaurantRouter.get("/", getAllRestaurants);
 restaurantRouter.get("/:id", authMiddleware, getRestaurantById);
-restaurantRouter.get("/keyword/:keyword", authMiddleware, getRestaurantByKeyword);
+restaurantRouter.get("/search/:keyword", authMiddleware, getRestaurantByKeyword);
 
 
 export default restaurantRouter;

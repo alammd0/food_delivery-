@@ -14,7 +14,7 @@ model User {
   phoneNo                    String?
   password                   String
   role                       UserRole                    @default(USER)
-  address                    UserAddress?
+  address                    UserAddress[]
   restaurants                Restaurant[]
   orders                     Order[]
   payments                   Payment[]
@@ -32,7 +32,7 @@ model UserAddress {
   state     String
   country   String
   zipcode   String
-  userId    Int      @unique
+  userId    Int      
   user      User     @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
 }
@@ -41,7 +41,7 @@ model Restaurant {
   id                        Int                         @id @default(autoincrement())
   restaurantName            String
   about                     String?
-  address                   RestaurantAddress?
+  address                   RestaurantAddress[]
   phoneNo                   String
   imageUrl                  String?
   food                      Food[]

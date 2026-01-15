@@ -9,10 +9,17 @@ import foodRouter from "./routes/food.route";
 import restaurantRouter from "./routes/restaurant.route";
 import cartRouter from "./routes/cart.route";
 import orderRouter from "./routes/order.route";
+import fileupload from "express-fileupload"
 
 const app = express();
 
 app.use(express.json());
+
+app.use(fileupload({
+    useTempFiles: true,      
+    tempFileDir: "/tmp/",  
+}));
+
 app.use(cors(
     {
         origin: "http://localhost:5173",
@@ -20,11 +27,11 @@ app.use(cors(
     }
 ));
 
-app.use("/auth", authRouter);
-app.use("/food", foodRouter);
-app.use("/restaurant", restaurantRouter);
-app.use("/cart", cartRouter);
-app.use("/order", orderRouter);
+app.use("/api/auths", authRouter);
+app.use("/api/foods", foodRouter);
+app.use("/api/restaurants", restaurantRouter);
+app.use("/api/carts", cartRouter);
+app.use("/api/orders", orderRouter);
 
 const PORT = process.env.PORT || 3000;
 

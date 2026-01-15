@@ -1,4 +1,5 @@
 import { Router } from "express";
+
 import {
     signup,
     login,
@@ -13,6 +14,8 @@ import {
     getAllUserAddress
 } from "../controllers/useraddress.controller"
 
+import { authMiddleware } from "../middleware/auth.middleware";
+
 
 const authRouter = Router();
 
@@ -21,9 +24,9 @@ authRouter.post("/login", login);
 authRouter.post("/forgot-password", sendLinkByEmail);
 authRouter.put("/update-password/:token", updatePassword);
 
-authRouter.post("/address/:id", createUserAddress);
-authRouter.put("/address/:id", updateUserAddress);
-authRouter.delete("/address/:id", deleteUserAddress);
-authRouter.get("/address/:id", getAllUserAddress);
+authRouter.post("/user-address/:id", authMiddleware, createUserAddress);
+authRouter.put("/user-address/:id", authMiddleware, updateUserAddress);
+authRouter.delete("/user-address/:id", authMiddleware, deleteUserAddress);
+authRouter.get("/user-address/:id", authMiddleware, getAllUserAddress);
 
 export default authRouter;

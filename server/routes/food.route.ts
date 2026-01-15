@@ -26,12 +26,12 @@ import {
 const foodRouter = Router();
 
 // Only for Is Owner
-foodRouter.post("/", authMiddleware, isOwner, createFood);
-foodRouter.put("/:id", authMiddleware, isOwner, updateFood);
-foodRouter.delete("/:id", authMiddleware, isOwner, deleteFood);
+foodRouter.post("/:restaurantId", authMiddleware, isOwner, createFood);
+foodRouter.put("/:restaurantId/:id", authMiddleware, isOwner, updateFood);
+foodRouter.delete("/:restaurantId/:id", authMiddleware, isOwner, deleteFood);
 
 // Any one Can Access
-foodRouter.get("/", authMiddleware, getAllFoods);
+foodRouter.get("/", getAllFoods);
 foodRouter.get("/:id", authMiddleware, getFoodById);
 foodRouter.get("/keyword/:keyword", authMiddleware, getFoodByKeyword);
 
